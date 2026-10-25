@@ -6,6 +6,11 @@
 <meta name="theme-color" content="#07070b">
 <title>EL MEXICANO 18 — Mini App</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- Firebase SDK Compat -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -789,7 +794,7 @@ button { cursor: pointer; border: 0; color: inherit; }
     </div>
     
     <div class="field">
-      <label>URL Image d'accueil (Bannière 4:4)</label>
+      <label>URL Image d'accueil (Bannière)</label>
       <input id="aHeroUrl" placeholder="https://...">
     </div>
     <button class="btn primary" style="width:100%; margin-bottom:16px;" onclick="saveHeroUrl()">Enregistrer la bannière</button>
@@ -810,7 +815,7 @@ button { cursor: pointer; border: 0; color: inherit; }
       <button class="btn" type="button" style="width:100%; margin-top:6px;" onclick="addGrammageRow()">＋ Ajouter une option tarifaire</button>
     </div>
 
-    <button class="btn primary" style="width:100%; margin-top:16px;" onclick="saveProductForm()">Enregistrer le produit</button>
+    <button class="btn primary" style="width:100%; margin-top:16px;" onclick="saveProductForm()">Enregistrer sur Firestore</button>
     <button class="btn" style="width:100%; margin-top:8px;" onclick="resetProductForm()">Effacer le formulaire</button>
 
     <hr style="border-color:var(--line); margin:20px 0;">
@@ -821,7 +826,7 @@ button { cursor: pointer; border: 0; color: inherit; }
 
 <div id="toast" class="toast"></div>
 
-<!-- APP LOGIC & STATE MANAGEMENT -->
+<!-- APP LOGIC & FIREBASE -->
 <script>
   let tgUser = null;
   if (window.Telegram && window.Telegram.WebApp) {
@@ -830,9 +835,25 @@ button { cursor: pointer; border: 0; color: inherit; }
     tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
   }
 
+  // --- CONFIGURATION FIREBASE ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyCSmC2LhcJHerLCgMo6-sTO6xyMYtRp2HE",
+    authDomain: "mexico18-76d12.firebaseapp.com",
+    projectId: "mexico18-76d12",
+    storageBucket: "mexico18-76d12.firebasestorage.app",
+    messagingSenderId: "9502294865",
+    appId: "1:9502294865:web:6630a573b42d5beab20970",
+    measurementId: "G-CEBL2J7DTG"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.firestore();
+
   const DEFAULT_PRODUCTS = [
     {
-      id: 1,
+      id: "1",
       name: "GREY GOOS WEED HOLLANDAISE🇳🇱",
       category: "Fleurs",
       description: "Qualité hollandaise certifiée, séchage optimal et arôme puissant.",
@@ -846,7 +867,7 @@ button { cursor: pointer; border: 0; color: inherit; }
       ]
     },
     {
-      id: 2,
+      id: "2",
       name: "120u STATIC⚡️",
       category: "Extraction",
       description: "Extraction 120u d'une grande pureté. Arôme d'exception.",
@@ -856,78 +877,6 @@ button { cursor: pointer; border: 0; color: inherit; }
         { label: "5g", price: 80 },
         { label: "10g", price: 140 },
         { label: "50g", price: 550 }
-      ]
-    },
-    {
-      id: 3,
-      name: "VGH FARM🏭",
-      category: "Fleurs",
-      description: "Cultivé par VGH Farm, curring irréprochable.",
-      media: "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?auto=format&fit=crop&w=600&q=80",
-      tag: "FARM",
-      variants: [
-        { label: "5g", price: 50 },
-        { label: "10g", price: 80 },
-        { label: "20g", price: 150 },
-        { label: "50g", price: 350 }
-      ]
-    },
-    {
-      id: 4,
-      name: "OLIVETTE🫒",
-      category: "Resine",
-      description: "Olivettes pressées à l'ancienne, texture souple.",
-      media: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=600&q=80",
-      tag: "TRADITION",
-      variants: [
-        { label: "10g", price: 100 },
-        { label: "50g", price: 350 }
-      ]
-    },
-    {
-      id: 5,
-      name: "JAUNE MOUSSEUX🧽",
-      category: "Resine",
-      description: "Resine jaune mousseuse et très aérée.",
-      media: "https://images.unsplash.com/photo-1527061011665-3652c757a4d4?auto=format&fit=crop&w=600&q=80",
-      tag: "BEST PRICE",
-      variants: [
-        { label: "2.5g", price: 10 },
-        { label: "10g", price: 30 },
-        { label: "50g", price: 130 },
-        { label: "100g", price: 250 }
-      ]
-    },
-    {
-      id: 6,
-      name: "PHILIP MORRIS🇪🇸",
-      category: "Tabac",
-      description: "Importé directement d'Espagne.",
-      media: "https://images.unsplash.com/photo-1527061011665-3652c757a4d4?auto=format&fit=crop&w=600&q=80",
-      tag: "ESPAGNE",
-      variants: [ { label: "1 PAQUET", price: 10 } ]
-    },
-    {
-      id: 7,
-      name: "MARLBORO RED🔴",
-      category: "Tabac",
-      description: "Paquet Marlboro rouge d'origine.",
-      media: "https://images.unsplash.com/photo-1527061011665-3652c757a4d4?auto=format&fit=crop&w=600&q=80",
-      tag: "CLASSIC",
-      variants: [ { label: "1 PAQUET", price: 5 } ]
-    },
-    {
-      id: 8,
-      name: "ÉCAILLE DE POISSON 0.9❄️",
-      category: "Exclusif",
-      description: "Pureté 0.9 effet brillante aspect écaille.",
-      media: "https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=600&q=80",
-      tag: "PURE 0.9",
-      variants: [
-        { label: "0.5g", price: 30 },
-        { label: "1g", price: 50 },
-        { label: "5g", price: 200 },
-        { label: "10g", price: 380 }
       ]
     }
   ];
@@ -948,8 +897,8 @@ button { cursor: pointer; border: 0; color: inherit; }
   }
 
   window.appState = {
-    products: safeLoad("mex_products", DEFAULT_PRODUCTS),
-    heroUrl: localStorage.getItem("mex_hero") || "https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80",
+    products: [],
+    heroUrl: "https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80",
     cart: safeLoad("mex_cart", []),
     favorites: safeLoad("mex_favs", []),
     category: "Tous",
@@ -957,9 +906,7 @@ button { cursor: pointer; border: 0; color: inherit; }
     modalProduct: null
   };
 
-  function saveLocal() {
-    localStorage.setItem("mex_products", JSON.stringify(window.appState.products));
-    localStorage.setItem("mex_hero", window.appState.heroUrl);
+  function saveLocalCartFav() {
     localStorage.setItem("mex_cart", JSON.stringify(window.appState.cart));
     localStorage.setItem("mex_favs", JSON.stringify(window.appState.favorites));
   }
@@ -989,23 +936,57 @@ button { cursor: pointer; border: 0; color: inherit; }
   function money(n) { return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n); }
   function escapeHTML(s) { return String(s || "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
+  // --- CHARGEMENT FIRESTORE ---
+  function loadProductsFromFirebase() {
+    db.collection("products").get().then((querySnapshot) => {
+      if (!querySnapshot.empty) {
+        window.appState.products = [];
+        querySnapshot.forEach((doc) => {
+          window.appState.products.push({ id: doc.id, ...doc.data() });
+        });
+      } else {
+        DEFAULT_PRODUCTS.forEach(p => {
+          db.collection("products").doc(String(p.id)).set(p);
+        });
+        window.appState.products = DEFAULT_PRODUCTS;
+      }
+      renderAll();
+      if (document.getElementById("adminModal").classList.contains("active")) {
+        renderAdminProductList();
+      }
+    }).catch((error) => {
+      console.error("Erreur chargement Firestore:", error);
+      toast("Erreur de connexion Firestore.");
+    });
+
+    // Charger la bannière depuis Firestore si elle existe
+    db.collection("settings").doc("config").get().then((doc) => {
+      if (doc.exists && doc.data().heroUrl) {
+        window.appState.heroUrl = doc.data().heroUrl;
+        renderHome();
+      }
+    });
+  }
+
   function productCard(p) {
     const isFav = window.appState.favorites.includes(p.id);
-    const mediaHtml = p.media && p.media.match(/\.(mp4|webm)$/i)
-      ? `<video src="${escapeHTML(p.media)}" autoplay loop muted playsinline></video>`
-      : `<img src="${escapeHTML(p.media || 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=600&q=80')}" alt="${escapeHTML(p.name)}">`;
+    const mediaUrl = p.media ? p.media.trim() : "";
+
+    const mediaHtml = mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("mp4"))
+      ? `<video src="${escapeHTML(mediaUrl)}" autoplay loop muted playsinline preload="auto"></video>`
+      : `<img src="${escapeHTML(mediaUrl || 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=600&q=80')}" alt="${escapeHTML(p.name)}">`;
 
     return `
       <article class="product">
-        <div class="art" onclick="openProductModal(${p.id})">
+        <div class="art" onclick="openProductModal('${p.id}')">
           ${p.tag ? `<span class="tag">${escapeHTML(p.tag)}</span>` : ''}
-          <button class="heart ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFav(${p.id})">
+          <button class="heart ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFav('${p.id}')">
             <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
           </button>
           ${mediaHtml}
         </div>
         <div class="productbody">
-          <h3 onclick="openProductModal(${p.id})" style="cursor:pointer;">${escapeHTML(p.name)}</h3>
+          <h3 onclick="openProductModal('${p.id}')" style="cursor:pointer;">${escapeHTML(p.name)}</h3>
           <div class="desc">${escapeHTML(p.description)}</div>
           
           <select class="weight" id="var-${p.id}">
@@ -1014,7 +995,7 @@ button { cursor: pointer; border: 0; color: inherit; }
 
           <div class="price-row">
             <span class="price">${money(p.variants?.[0]?.price || 0)}</span>
-            <button class="add" onclick="addToCart(${p.id})">
+            <button class="add" onclick="addToCart('${p.id}')">
               <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
               Ajouter
             </button>
@@ -1026,7 +1007,7 @@ button { cursor: pointer; border: 0; color: inherit; }
 
   function renderProducts() {
     const q = (document.getElementById("search")?.value || "").toLowerCase();
-    const categories = ["Tous", ...new Set(window.appState.products.map(p => p.category || "Autres"))];
+    const categories = ["Tous", ...new Set(window.appState.products.map(p => (p.category ? p.category.trim() : "Autres")))];
     
     const catSelect = document.getElementById("categorySelect");
     if (catSelect) {
@@ -1034,7 +1015,8 @@ button { cursor: pointer; border: 0; color: inherit; }
     }
 
     const filtered = window.appState.products.filter(p => {
-      const matchCat = window.appState.category === "Tous" || p.category === window.appState.category;
+      const pCat = p.category ? p.category.trim() : "Autres";
+      const matchCat = window.appState.category === "Tous" || pCat === window.appState.category;
       const matchQuery = (p.name + " " + p.description).toLowerCase().includes(q);
       return matchCat && matchQuery;
     });
@@ -1049,8 +1031,10 @@ button { cursor: pointer; border: 0; color: inherit; }
   }
 
   function renderHome() {
-    document.getElementById("heroImage").src = window.appState.heroUrl;
-    document.getElementById("featured").innerHTML = window.appState.products.slice(0, 4).map(productCard).join("");
+    const heroEl = document.getElementById("heroImage");
+    if (heroEl) heroEl.src = window.appState.heroUrl;
+    const featEl = document.getElementById("featured");
+    if (featEl) featEl.innerHTML = window.appState.products.slice(0, 4).map(productCard).join("");
   }
 
   function renderSocial() {
@@ -1071,7 +1055,7 @@ button { cursor: pointer; border: 0; color: inherit; }
     const idx = window.appState.favorites.indexOf(id);
     if (idx >= 0) window.appState.favorites.splice(idx, 1);
     else window.appState.favorites.push(id);
-    saveLocal();
+    saveLocalCartFav();
     renderProducts();
     renderHome();
     renderFavorites();
@@ -1079,13 +1063,13 @@ button { cursor: pointer; border: 0; color: inherit; }
   }
 
   function addToCart(id) {
-    const p = window.appState.products.find(x => x.id === id);
+    const p = window.appState.products.find(x => x.id == id);
     if (!p) return;
     const vIdx = Number(document.getElementById("var-" + id)?.value || 0);
-    const item = window.appState.cart.find(x => x.id === id && x.vIdx === vIdx);
+    const item = window.appState.cart.find(x => x.id == id && x.vIdx === vIdx);
     if (item) item.qty++;
     else window.appState.cart.push({ id, vIdx, qty: 1 });
-    saveLocal();
+    saveLocalCartFav();
     updateNavCount();
     toast(`Ajouté au panier : ${p.name} (${p.variants[vIdx].label})`);
   }
@@ -1095,41 +1079,43 @@ button { cursor: pointer; border: 0; color: inherit; }
     document.getElementById("navCount").innerHTML = count ? `<span class="badge-count">${count}</span>` : "";
   }
 
-  /* PRODUCT DETAIL MODAL */
   function openProductModal(id) {
-    const p = window.appState.products.find(x => x.id === id);
+    const p = window.appState.products.find(x => x.id == id);
     if (!p) return;
     window.appState.modalProduct = p;
     document.getElementById("pModalTitle").textContent = p.name;
     document.getElementById("pModalDesc").textContent = p.description;
     
+    const mediaUrl = p.media ? p.media.trim() : "";
     const mediaContainer = document.getElementById("pModalMedia");
-    mediaContainer.innerHTML = p.media && p.media.match(/\.(mp4|webm)$/i)
-      ? `<video src="${escapeHTML(p.media)}" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;"></video>`
-      : `<img src="${escapeHTML(p.media || 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=600&q=80')}" style="width:100%;height:100%;object-fit:cover;">`;
+    
+    mediaContainer.innerHTML = mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("mp4"))
+      ? `<video src="${escapeHTML(mediaUrl)}" autoplay loop muted playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;"></video>`
+      : `<img src="${escapeHTML(mediaUrl || 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=600&q=80')}" style="width:100%;height:100%;object-fit:cover;">`;
 
     const select = document.getElementById("pModalSelect");
     select.innerHTML = (p.variants || []).map((v, i) => `<option value="${i}">${escapeHTML(v.label)} — ${money(v.price)}</option>`).join("");
 
     document.getElementById("productModal").classList.add("active");
   }
+
   function closeProductModal() {
     document.getElementById("productModal").classList.remove("active");
   }
+
   function addModalToCart() {
     if (!window.appState.modalProduct) return;
     const p = window.appState.modalProduct;
     const vIdx = Number(document.getElementById("pModalSelect").value || 0);
-    const item = window.appState.cart.find(x => x.id === p.id && x.vIdx === vIdx);
+    const item = window.appState.cart.find(x => x.id == p.id && x.vIdx === vIdx);
     if (item) item.qty++;
     else window.appState.cart.push({ id: p.id, vIdx, qty: 1 });
-    saveLocal();
+    saveLocalCartFav();
     updateNavCount();
     closeProductModal();
     toast(`Ajouté au panier : ${p.name} (${p.variants[vIdx].label})`);
   }
 
-  /* CART & CHECKOUT */
   function renderCart() {
     const container = document.getElementById("cartItems");
     const checkout = document.getElementById("checkout");
@@ -1142,11 +1128,10 @@ button { cursor: pointer; border: 0; color: inherit; }
 
     let grandTotal = 0;
     container.innerHTML = window.appState.cart.map((item, idx) => {
-      const p = window.appState.products.find(x => x.id === item.id);
+      const p = window.appState.products.find(x => x.id == item.id);
       const v = p?.variants?.[item.vIdx];
       if (!p || !v) return "";
-      const itemTotal = v.price * item.qty;
-      grandTotal += itemTotal;
+      grandTotal += v.price * item.qty;
 
       return `
         <div style="display:flex; align-items:center; justify-content:space-between; background:var(--panel); border:1px solid var(--line); padding:14px 16px; border-radius:18px; margin-bottom:10px;">
@@ -1173,20 +1158,14 @@ button { cursor: pointer; border: 0; color: inherit; }
         <div class="field">
           <label>Mode de réception</label>
           <select id="orderMode" onchange="toggleOrderFields(this.value)">
-            <option value="surplace">⌖ Sur place / Retrait (Aucun formulaire requis)</option>
+            <option value="surplace">⌖ Sur place / Retrait</option>
             <option value="livraison">🚚 Livraison</option>
           </select>
         </div>
 
         <div id="livraisonFields" style="display:none;">
-          <div class="field">
-            <label>Téléphone</label>
-            <input id="orderPhone" placeholder="Ex: 06 12 34 56 78">
-          </div>
-          <div class="field">
-            <label>Adresse de livraison</label>
-            <input id="orderAddress" placeholder="N° Rue, Code Postal, Ville">
-          </div>
+          <div class="field"><label>Téléphone</label><input id="orderPhone" placeholder="06 12 34 56 78"></div>
+          <div class="field"><label>Adresse</label><input id="orderAddress" placeholder="N° Rue, Ville"></div>
         </div>
 
         <button class="btn primary" style="width:100%; margin-top:18px;" onclick="confirmOrder(${grandTotal})">
@@ -1203,7 +1182,7 @@ button { cursor: pointer; border: 0; color: inherit; }
   function changeQty(idx, delta) {
     window.appState.cart[idx].qty += delta;
     if (window.appState.cart[idx].qty <= 0) window.appState.cart.splice(idx, 1);
-    saveLocal();
+    saveLocalCartFav();
     renderCart();
     updateNavCount();
   }
@@ -1211,35 +1190,24 @@ button { cursor: pointer; border: 0; color: inherit; }
   function confirmOrder(totalAmount) {
     const mode = document.getElementById("orderMode").value;
     let phone = "", address = "";
-
     if (mode === "livraison") {
       phone = document.getElementById("orderPhone").value.trim();
       address = document.getElementById("orderAddress").value.trim();
-      if (!phone || !address) {
-        toast("Veuillez remplir le téléphone et l'adresse.");
-        return;
-      }
+      if (!phone || !address) { toast("Remplis le téléphone et l'adresse."); return; }
     }
 
-    let summary = `🌵 *NOUVELLE COMMANDE - EL MEXICANO 18*\n\n`;
-    summary += `*Mode:* ${mode === "livraison" ? "🚚 Livraison" : "⌖ Sur place / Retrait"}\n`;
-    if (mode === "livraison") {
-      summary += `*Tél:* ${phone}\n*Adresse:* ${address}\n`;
-    }
-    summary += `\n*Détails du panier:*\n`;
+    let summary = `🌵 *NOUVELLE COMMANDE - EL MEXICANO 18*\n\n*Mode:* ${mode === "livraison" ? "🚚 Livraison" : "⌖ Sur place"}\n`;
+    if (mode === "livraison") summary += `*Tél:* ${phone}\n*Adresse:* ${address}\n`;
+    summary += `\n*Panier:*\n`;
 
     window.appState.cart.forEach(item => {
-      const p = window.appState.products.find(x => x.id === item.id);
+      const p = window.appState.products.find(x => x.id == item.id);
       const v = p?.variants?.[item.vIdx];
-      if (p && v) {
-        summary += `• ${p.name} (${v.label}) x${item.qty} — ${v.price * item.qty}€\n`;
-      }
+      if (p && v) summary += `• ${p.name} (${v.label}) x${item.qty} — ${v.price * item.qty}€\n`;
     });
-
     summary += `\n*TOTAL: ${totalAmount}€*`;
 
-    const telegramUrl = `https://t.me/mexicain18?text=${encodeURIComponent(summary)}`;
-    window.open(telegramUrl, "_blank");
+    window.open(`https://t.me/mexicain18?text=${encodeURIComponent(summary)}`, "_blank");
     toast("Redirection vers Telegram...");
   }
 
@@ -1247,57 +1215,33 @@ button { cursor: pointer; border: 0; color: inherit; }
     const favs = window.appState.products.filter(p => window.appState.favorites.includes(p.id));
     document.getElementById("favorites").innerHTML = favs.length 
       ? favs.map(productCard).join("") 
-      : `<div class="subtle" style="grid-column:1/-1; text-align:center; padding:20px;">Aucun favori enregistré.</div>`;
+      : `<div class="subtle" style="grid-column:1/-1; text-align:center; padding:20px;">Aucun favori.</div>`;
   }
 
   function renderProfilePage() {
-    const profileContainer = document.getElementById("profileContainer");
     const name = tgUser?.first_name || "Client VIP";
     const username = tgUser?.username ? `@${tgUser.username}` : "Membre Exclusif";
     const photoUrl = tgUser?.photo_url;
-
-    const avatarHtml = photoUrl 
-      ? `<img src="${escapeHTML(photoUrl)}" class="profile-avatar" alt="Avatar">`
-      : `<div class="profile-avatar">🌵</div>`;
-
-    profileContainer.innerHTML = `
+    document.getElementById("profileContainer").innerHTML = `
       <div class="profile-card">
-        <div class="profile-avatar-wrap">
-          ${avatarHtml}
-        </div>
+        <div class="profile-avatar-wrap"><div class="profile-avatar">${photoUrl ? `<img src="${photoUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : '🌵'}</div></div>
         <div class="profile-name">${escapeHTML(name)}</div>
         <div class="profile-handle">${escapeHTML(username)}</div>
-        <span class="pill">
-          <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:var(--gold);"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-          COMPTE VÉRIFIÉ
-        </span>
+        <span class="pill">COMPTE VÉRIFIÉ</span>
       </div>
     `;
     renderFavorites();
   }
 
-  /* PAVÉ NUMÉRIQUE & PIN STYLE iOS */
+  // --- ADMIN & PIN ---
   let enteredPin = "";
-
-  function openPinModal() {
-    enteredPin = "";
-    updatePinDots();
-    document.getElementById("pinModal").classList.add("active");
-  }
-
-  function closePinModal() {
-    document.getElementById("pinModal").classList.remove("active");
-    enteredPin = "";
-  }
+  function openPinModal() { enteredPin = ""; updatePinDots(); document.getElementById("pinModal").classList.add("active"); }
+  function closePinModal() { document.getElementById("pinModal").classList.remove("active"); enteredPin = ""; }
 
   function pressKey(val) {
-    if (val === '⌫') {
-      enteredPin = enteredPin.slice(0, -1);
-    } else if (val === 'C') {
-      enteredPin = "";
-    } else if (enteredPin.length < 4) {
-      enteredPin += val;
-    }
+    if (val === '⌫') enteredPin = enteredPin.slice(0, -1);
+    else if (val === 'C') enteredPin = "";
+    else if (enteredPin.length < 4) enteredPin += val;
     updatePinDots();
 
     if (enteredPin.length === 4) {
@@ -1317,12 +1261,7 @@ button { cursor: pointer; border: 0; color: inherit; }
 
   function updatePinDots() {
     for (let i = 0; i < 4; i++) {
-      const dot = document.getElementById(`dot-${i}`);
-      if (i < enteredPin.length) {
-        dot.classList.add("filled");
-      } else {
-        dot.classList.remove("filled");
-      }
+      document.getElementById(`dot-${i}`).classList.toggle("filled", i < enteredPin.length);
     }
   }
 
@@ -1332,30 +1271,24 @@ button { cursor: pointer; border: 0; color: inherit; }
     document.getElementById("adminModal").classList.add("active");
   }
 
-  function closeAdmin() {
-    document.getElementById("adminModal").classList.remove("active");
-  }
+  function closeAdmin() { document.getElementById("adminModal").classList.remove("active"); }
 
   function saveHeroUrl() {
     const url = document.getElementById("aHeroUrl").value.trim();
     if (url) {
-      window.appState.heroUrl = url;
-      saveLocal();
-      renderHome();
-      toast("Bannière mise à jour !");
+      db.collection("settings").doc("config").set({ heroUrl: url }, { merge: true }).then(() => {
+        window.appState.heroUrl = url;
+        renderHome();
+        toast("Bannière enregistrée sur Firestore !");
+      });
     }
   }
 
   function addGrammageRow(label = "", price = "") {
-    const container = document.getElementById("grammageContainer");
     const div = document.createElement("div");
     div.className = "grammage-row";
-    div.innerHTML = `
-      <input class="g-label" placeholder="Format (ex: 10g)" value="${escapeHTML(label)}">
-      <input class="g-price" type="number" placeholder="Prix (€)" value="${escapeHTML(price)}">
-      <button type="button" class="btn" onclick="this.parentElement.remove()">✕</button>
-    `;
-    container.appendChild(div);
+    div.innerHTML = `<input class="g-label" placeholder="Format (ex: 10g)" value="${escapeHTML(label)}"><input class="g-price" type="number" placeholder="Prix (€)" value="${escapeHTML(price)}"><button type="button" class="btn" onclick="this.parentElement.remove()">✕</button>`;
+    document.getElementById("grammageContainer").appendChild(div);
   }
 
   function resetProductForm() {
@@ -1368,43 +1301,37 @@ button { cursor: pointer; border: 0; color: inherit; }
     document.getElementById("grammageContainer").innerHTML = "";
   }
 
+  // --- SAUVEGARDE SUR FIRESTORE ---
   function saveProductForm() {
     const editId = document.getElementById("editProductId").value;
     const name = document.getElementById("aName").value.trim();
     const category = document.getElementById("aCat").value.trim() || "Autres";
     const description = document.getElementById("aDesc").value.trim();
-    const media = document.getElementById("aMedia").value.trim(); // CORRECTION: Récupération de l'URL média
+    const media = document.getElementById("aMedia").value.trim();
     const tag = document.getElementById("aTag").value.trim();
 
-    const rows = document.querySelectorAll("#grammageContainer .grammage-row");
     const variants = [];
-
-    rows.forEach(row => {
+    document.querySelectorAll("#grammageContainer .grammage-row").forEach(row => {
       const lbl = row.querySelector(".g-label").value.trim();
       const prc = Number(row.querySelector(".g-price").value);
       if (lbl && !isNaN(prc)) variants.push({ label: lbl, price: prc });
     });
 
-    if (!name || !variants.length) {
-      toast("Remplis le nom et au moins 1 tarif.");
-      return;
-    }
+    if (!name || !variants.length) { toast("Remplis le nom et au moins 1 tarif."); return; }
 
-    if (editId) {
-      const p = window.appState.products.find(x => x.id == editId);
-      if (p) Object.assign(p, { name, category, description, media, tag, variants });
-    } else {
-      window.appState.products.push({
-        id: Date.now(),
-        name, category, description, media, tag, variants
+    const productId = editId ? String(editId) : String(Date.now());
+    const productData = { name, category, description, media, tag, variants };
+
+    db.collection("products").doc(productId).set(productData, { merge: true })
+      .then(() => {
+        toast("Enregistré sur Firestore ! 🚀");
+        resetProductForm();
+        loadProductsFromFirebase();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast("Erreur d'enregistrement Firebase.");
       });
-    }
-
-    saveLocal();
-    renderAll();
-    resetProductForm();
-    renderAdminProductList();
-    toast("Produit sauvegardé avec succès !");
   }
 
   function renderAdminProductList() {
@@ -1412,15 +1339,15 @@ button { cursor: pointer; border: 0; color: inherit; }
       <div style="display:flex; justify-content:space-between; align-items:center; background:var(--panel2); padding:10px 14px; border-radius:12px; margin-bottom:8px;">
         <div><b>${escapeHTML(p.name)}</b> <span class="subtle">(${escapeHTML(p.category)})</span></div>
         <div style="display:flex; gap:6px;">
-          <button class="btn" onclick="editProduct(${p.id})">✎</button>
-          <button class="btn" onclick="deleteProduct(${p.id})">✕</button>
+          <button class="btn" onclick="editProduct('${p.id}')">✎</button>
+          <button class="btn" onclick="deleteProduct('${p.id}')">✕</button>
         </div>
       </div>
     `).join("");
   }
 
   function editProduct(id) {
-    const p = window.appState.products.find(x => x.id === id);
+    const p = window.appState.products.find(x => x.id == id);
     if (!p) return;
     document.getElementById("editProductId").value = p.id;
     document.getElementById("aName").value = p.name;
@@ -1435,15 +1362,11 @@ button { cursor: pointer; border: 0; color: inherit; }
   }
 
   function deleteProduct(id) {
-    if (confirm("Supprimer ce produit ?")) {
-      window.appState.products = window.appState.products.filter(x => x.id !== id);
-      window.appState.favorites = window.appState.favorites.filter(favId => favId !== id);
-      window.appState.cart = window.appState.cart.filter(item => item.id !== id);
-      
-      saveLocal();
-      renderAll();
-      renderAdminProductList();
-      toast("Produit supprimé !");
+    if (confirm("Supprimer ce produit de Firestore ?")) {
+      db.collection("products").doc(String(id)).delete().then(() => {
+        loadProductsFromFirebase();
+        toast("Supprimé de Firestore !");
+      });
     }
   }
 
@@ -1455,8 +1378,8 @@ button { cursor: pointer; border: 0; color: inherit; }
   }
 
   window.addEventListener("DOMContentLoaded", () => {
-    renderAll();
-    toast("Bienvenue chez EL MEXICANO 18 ! 🌵✨");
+    loadProductsFromFirebase();
+    toast("Connecté à Firestore 🌵✨");
   });
 </script>
 </body>
