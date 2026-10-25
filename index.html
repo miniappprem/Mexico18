@@ -500,7 +500,7 @@ button { cursor: pointer; border: 0; color: inherit; }
   margin-bottom: 12px;
 }
 
-/* iOS PIN CODE STYLING */
+/* IOS PIN CODE STYLING */
 .ios-pin-dots {
   display: flex;
   justify-content: center;
@@ -851,7 +851,7 @@ button { cursor: pointer; border: 0; color: inherit; }
   }
   const db = firebase.firestore();
 
-  // --- CATALOGUE OFFICIEL AVEC TES PRODUITS & MÉDIAS ---
+  // --- CATALOGUE OFFICIEL DE SECOURS (S'affiche instantanément) ---
   const DEFAULT_PRODUCTS = [
     {
       id: "1",
@@ -974,7 +974,7 @@ button { cursor: pointer; border: 0; color: inherit; }
   }
 
   window.appState = {
-    products: [],
+    products: DEFAULT_PRODUCTS, // On initialise directement avec les produits pour qu'ils s'affichent instantanément
     heroUrl: "https://raw.githubusercontent.com/miniappprem/image/bbc94fd3297ed44031663a00dcd5c4b17c31e441/IMG_1140.jpeg",
     cart: safeLoad("mex_cart", []),
     favorites: safeLoad("mex_favs", []),
@@ -1013,36 +1013,35 @@ button { cursor: pointer; border: 0; color: inherit; }
   function money(n) { return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n); }
   function escapeHTML(s) { return String(s || "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
-  // --- CHARGEMENT FIRESTORE ---
+  // --- SYNCHRONISATION FIRESTORE ---
   function loadProductsFromFirebase() {
     db.collection("products").get().then((querySnapshot) => {
       if (!querySnapshot.empty) {
-        window.appState.products = [];
+        const firestoreProducts = [];
         querySnapshot.forEach((doc) => {
-          window.appState.products.push({ id: doc.id, ...doc.data() });
+          firestoreProducts.push({ id: doc.id, ...doc.data() });
         });
+        window.appState.products = firestoreProducts; // Met à jour avec Firestore si des données y sont
       } else {
-        // Enregistrement automatique des produits par défaut dans Firestore
+        // Si vide sur Firestore, on y pousse les produits par défaut
         DEFAULT_PRODUCTS.forEach(p => {
           db.collection("products").doc(String(p.id)).set(p);
         });
-        window.appState.products = DEFAULT_PRODUCTS;
       }
       renderAll();
       if (document.getElementById("adminModal").classList.contains("active")) {
         renderAdminProductList();
       }
     }).catch((error) => {
-      console.error("Erreur chargement Firestore:", error);
+      console.warn("Utilisation du catalogue local (Hors ligne ou règles Firestore):", error);
     });
 
-    // Charger le logo
     db.collection("settings").doc("config").get().then((doc) => {
       if (doc.exists && doc.data().heroUrl) {
         window.appState.heroUrl = doc.data().heroUrl;
         renderHome();
       }
-    });
+    }).catch(() => {});
   }
 
   function productCard(p) {
@@ -1453,9 +1452,10 @@ button { cursor: pointer; border: 0; color: inherit; }
     updateNavCount();
   }
 
+  // --- LANCEMENT IMMÉDIAT ---
   window.addEventListener("DOMContentLoaded", () => {
-    loadProductsFromFirebase();
-    toast("Connecté à Firestore 🌵✨");
+    renderAll(); // Affiche instantanément les produits
+    loadProductsFromFirebase(); // Essaie de récupérer la base distante en arrière-plan
   });
 </script>
 </body>
