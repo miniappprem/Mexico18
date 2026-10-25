@@ -627,7 +627,7 @@ button { cursor: pointer; border: 0; color: inherit; }
   <!-- HOME PAGE -->
   <section id="home" class="page active">
     <div class="hero-banner-container">
-      <img id="heroImage" src="https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80" alt="Bannière El Mexicano">
+      <img id="heroImage" src="https://raw.githubusercontent.com/miniappprem/image/bbc94fd3297ed44031663a00dcd5c4b17c31e441/IMG_1140.jpeg" alt="Logo El Mexicano">
     </div>
 
     <div class="intro">
@@ -794,10 +794,10 @@ button { cursor: pointer; border: 0; color: inherit; }
     </div>
     
     <div class="field">
-      <label>URL Image d'accueil (Bannière)</label>
+      <label>URL Image du Logo (Bannière)</label>
       <input id="aHeroUrl" placeholder="https://...">
     </div>
-    <button class="btn primary" style="width:100%; margin-bottom:16px;" onclick="saveHeroUrl()">Enregistrer la bannière</button>
+    <button class="btn primary" style="width:100%; margin-bottom:16px;" onclick="saveHeroUrl()">Enregistrer le logo</button>
 
     <hr style="border-color:var(--line); margin:16px 0;">
 
@@ -851,13 +851,14 @@ button { cursor: pointer; border: 0; color: inherit; }
   }
   const db = firebase.firestore();
 
+  // --- CATALOGUE OFFICIEL AVEC TES PRODUITS & MÉDIAS ---
   const DEFAULT_PRODUCTS = [
     {
       id: "1",
       name: "GREY GOOS WEED HOLLANDAISE🇳🇱",
       category: "Fleurs",
       description: "Qualité hollandaise certifiée, séchage optimal et arôme puissant.",
-      media: "https://images.unsplash.com/photo-1536816579748-4ecb3f03d72a?auto=format&fit=crop&w=600&q=80",
+      media: "https://raw.githubusercontent.com/miniappprem/image/bbc94fd3297ed44031663a00dcd5c4b17c31e441/IMG_1387.jpeg",
       tag: "TOP SELLER",
       variants: [
         { label: "5g", price: 50 },
@@ -871,12 +872,88 @@ button { cursor: pointer; border: 0; color: inherit; }
       name: "120u STATIC⚡️",
       category: "Extraction",
       description: "Extraction 120u d'une grande pureté. Arôme d'exception.",
-      media: "https://images.unsplash.com/photo-1603909223429-69bb7101f420?auto=format&fit=crop&w=600&q=80",
+      media: "https://www.image2url.com/r2/default/videos/1792945111277-797d8fc0-1c2e-488e-965f-c310bddc1269.mp4",
       tag: "STATIC 120U",
       variants: [
         { label: "5g", price: 80 },
         { label: "10g", price: 140 },
         { label: "50g", price: 550 }
+      ]
+    },
+    {
+      id: "3",
+      name: "VGH FARM🏭",
+      category: "Fleurs",
+      description: "Cultivé par VGH Farm, curring irréprochable.",
+      media: "https://www.image2url.com/r2/default/videos/1792945257808-e494c47b-95a4-4ece-81d1-63ad36751b4a.mp4",
+      tag: "FARM",
+      variants: [
+        { label: "5g", price: 50 },
+        { label: "10g", price: 80 },
+        { label: "20g", price: 150 },
+        { label: "50g", price: 350 }
+      ]
+    },
+    {
+      id: "4",
+      name: "OLIVETTE🫒",
+      category: "Resine",
+      description: "Olivettes pressées à l'ancienne, texture souple.",
+      media: "https://www.image2url.com/r2/default/videos/1792945363336-bf9d6ca6-95f0-4390-a7a2-13d90af716bd.mp4",
+      tag: "TRADITION",
+      variants: [
+        { label: "10g", price: 100 },
+        { label: "50g", price: 350 }
+      ]
+    },
+    {
+      id: "5",
+      name: "JAUNE MOUSSEUX🧽",
+      category: "Resine",
+      description: "Resine jaune mousseuse et très aérée.",
+      media: "https://www.image2url.com/r2/default/videos/1792945301817-5f47096d-c944-4e53-8e2e-da06a5775cc4.mp4",
+      tag: "BEST PRICE",
+      variants: [
+        { label: "2.5g", price: 10 },
+        { label: "10g", price: 30 },
+        { label: "50g", price: 130 },
+        { label: "100g", price: 250 }
+      ]
+    },
+    {
+      id: "6",
+      name: "PHILIP MORRIS🇪🇸",
+      category: "Tabac",
+      description: "Importé directement d'Espagne.",
+      media: "https://raw.githubusercontent.com/miniappprem/image/bbc94fd3297ed44031663a00dcd5c4b17c31e441/IMG_1393.jpeg",
+      tag: "ESPAGNE",
+      variants: [
+        { label: "1 PAQUET", price: 10 }
+      ]
+    },
+    {
+      id: "7",
+      name: "MARLBORO RED🔴",
+      category: "Tabac",
+      description: "Paquet Marlboro rouge d'origine.",
+      media: "https://raw.githubusercontent.com/miniappprem/image/bbc94fd3297ed44031663a00dcd5c4b17c31e441/IMG_1394.jpeg",
+      tag: "CLASSIC",
+      variants: [
+        { label: "1 PAQUET", price: 5 }
+      ]
+    },
+    {
+      id: "8",
+      name: "ÉCAILLE DE POISSON 0.9❄️",
+      category: "Exclusif",
+      description: "Pureté 0.9 effet brillante aspect écaille.",
+      media: "https://www.image2url.com/r2/default/videos/1792945170315-d6813891-0e80-4c42-aa83-54fe1201c5aa.mp4",
+      tag: "PURE 0.9",
+      variants: [
+        { label: "0.5g", price: 30 },
+        { label: "1g", price: 50 },
+        { label: "5g", price: 200 },
+        { label: "10g", price: 380 }
       ]
     }
   ];
@@ -898,7 +975,7 @@ button { cursor: pointer; border: 0; color: inherit; }
 
   window.appState = {
     products: [],
-    heroUrl: "https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=800&q=80",
+    heroUrl: "https://raw.githubusercontent.com/miniappprem/image/bbc94fd3297ed44031663a00dcd5c4b17c31e441/IMG_1140.jpeg",
     cart: safeLoad("mex_cart", []),
     favorites: safeLoad("mex_favs", []),
     category: "Tous",
@@ -945,6 +1022,7 @@ button { cursor: pointer; border: 0; color: inherit; }
           window.appState.products.push({ id: doc.id, ...doc.data() });
         });
       } else {
+        // Enregistrement automatique des produits par défaut dans Firestore
         DEFAULT_PRODUCTS.forEach(p => {
           db.collection("products").doc(String(p.id)).set(p);
         });
@@ -956,10 +1034,9 @@ button { cursor: pointer; border: 0; color: inherit; }
       }
     }).catch((error) => {
       console.error("Erreur chargement Firestore:", error);
-      toast("Erreur de connexion Firestore.");
     });
 
-    // Charger la bannière depuis Firestore si elle existe
+    // Charger le logo
     db.collection("settings").doc("config").get().then((doc) => {
       if (doc.exists && doc.data().heroUrl) {
         window.appState.heroUrl = doc.data().heroUrl;
@@ -974,7 +1051,7 @@ button { cursor: pointer; border: 0; color: inherit; }
 
     const mediaHtml = mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("mp4"))
       ? `<video src="${escapeHTML(mediaUrl)}" autoplay loop muted playsinline preload="auto"></video>`
-      : `<img src="${escapeHTML(mediaUrl || 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=600&q=80')}" alt="${escapeHTML(p.name)}">`;
+      : `<img src="${escapeHTML(mediaUrl || 'https://raw.githubusercontent.com/miniappprem/image/bbc94fd3297ed44031663a00dcd5c4b17c31e441/IMG_1140.jpeg')}" alt="${escapeHTML(p.name)}">`;
 
     return `
       <article class="product">
@@ -1091,7 +1168,7 @@ button { cursor: pointer; border: 0; color: inherit; }
     
     mediaContainer.innerHTML = mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("mp4"))
       ? `<video src="${escapeHTML(mediaUrl)}" autoplay loop muted playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;"></video>`
-      : `<img src="${escapeHTML(mediaUrl || 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=600&q=80')}" style="width:100%;height:100%;object-fit:cover;">`;
+      : `<img src="${escapeHTML(mediaUrl || 'https://raw.githubusercontent.com/miniappprem/image/bbc94fd3297ed44031663a00dcd5c4b17c31e441/IMG_1140.jpeg')}" style="width:100%;height:100%;object-fit:cover;">`;
 
     const select = document.getElementById("pModalSelect");
     select.innerHTML = (p.variants || []).map((v, i) => `<option value="${i}">${escapeHTML(v.label)} — ${money(v.price)}</option>`).join("");
@@ -1279,7 +1356,7 @@ button { cursor: pointer; border: 0; color: inherit; }
       db.collection("settings").doc("config").set({ heroUrl: url }, { merge: true }).then(() => {
         window.appState.heroUrl = url;
         renderHome();
-        toast("Bannière enregistrée sur Firestore !");
+        toast("Logo enregistré sur Firestore !");
       });
     }
   }
@@ -1301,7 +1378,6 @@ button { cursor: pointer; border: 0; color: inherit; }
     document.getElementById("grammageContainer").innerHTML = "";
   }
 
-  // --- SAUVEGARDE SUR FIRESTORE ---
   function saveProductForm() {
     const editId = document.getElementById("editProductId").value;
     const name = document.getElementById("aName").value.trim();
