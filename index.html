@@ -1373,7 +1373,7 @@ button { cursor: pointer; border: 0; color: inherit; }
     const name = document.getElementById("aName").value.trim();
     const category = document.getElementById("aCat").value.trim() || "Autres";
     const description = document.getElementById("aDesc").value.trim();
-    const media = document.getElementById("aMedia").value.trim();
+    const media = document.getElementById("aMedia").value.trim(); // CORRECTION: Récupération de l'URL média
     const tag = document.getElementById("aTag").value.trim();
 
     const rows = document.querySelectorAll("#grammageContainer .grammage-row");
@@ -1404,7 +1404,7 @@ button { cursor: pointer; border: 0; color: inherit; }
     renderAll();
     resetProductForm();
     renderAdminProductList();
-    toast("Produit sauvegardé !");
+    toast("Produit sauvegardé avec succès !");
   }
 
   function renderAdminProductList() {
